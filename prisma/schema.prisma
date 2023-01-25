@@ -11,5 +11,50 @@ datasource db {
 }
 
 model Wallet {
-  projectId Int @id
+  projectId      Int              @id
+  country        String
+  currency       String           @default("USD")
+  currentBalance BigInt           @default(0)
+  messagingQuota MessagingQuota[]
+  subscription   Subscription?
+  transactions   Transaction[]
+}
+
+enum TransactionType {
+  BIC
+  UIC
+}
+
+model Transaction {
+  id        String          @id @default(uuid())
+  projectId Int
+  wallet    Wallet          @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  type      TransactionType
+  bill      BigInt?
+  billable  Boolean
+  createdAt DateTime        @default(now())
+
+  @@unique([projectId, id])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model MessagingQuota {
+  projectId Int
+  wallet    Wallet @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  channelId Int
+  value     Int    @default(0)
+  year      Int
+  month     Int
+
+  @@id([projectId, channelId, year, month])
+  @@index([channelId])
+  @@index([year])
+  @@index([month])
+}
+
+model Subscription {
+  projectId Int      @id
+  wallet    Wallet   @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  expiresAt DateTime
 }

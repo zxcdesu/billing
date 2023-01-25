@@ -1,27 +1,75 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
+import { FindAllWalletsDto } from './dto/find-all-wallets.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { Wallet } from './entities/wallet.entity';
 
 @Injectable()
 export class WalletService {
+  constructor(private readonly prismaService: PrismaService) {}
+
   create(projectId: number, createWalletDto: CreateWalletDto): Promise<Wallet> {
-    throw new NotImplementedException();
+    return this.prismaService.wallet.create({
+      data: {
+        projectId,
+        ...createWalletDto,
+      },
+      include: {
+        messagingQuota: true,
+        subscription: true,
+      },
+    });
   }
 
-  findAll(): Promise<Wallet[]> {
-    throw new NotImplementedException();
+  findAll(findAllWalletsDto: FindAllWalletsDto): Promise<Wallet[]> {
+    return this.prismaService.wallet.findMany({
+      where: {
+        projectId: {
+          in: findAllWalletsDto.projectIds,
+        },
+      },
+      include: {
+        messagingQuota: true,
+        subscription: true,
+      },
+    });
   }
 
   findOne(projectId: number): Promise<Wallet> {
-    throw new NotImplementedException();
+    return this.prismaService.wallet.findUniqueOrThrow({
+      where: {
+        projectId,
+      },
+      include: {
+        messagingQuota: true,
+        subscription: true,
+      },
+    });
   }
 
-  update(updateWalletDto: UpdateWalletDto): Promise<Wallet> {
-    throw new NotImplementedException();
+  update(projectId: number, updateWalletDto: UpdateWalletDto): Promise<Wallet> {
+    return this.prismaService.wallet.update({
+      where: {
+        projectId,
+      },
+      data: updateWalletDto,
+      include: {
+        messagingQuota: true,
+        subscription: true,
+      },
+    });
   }
 
   remove(projectId: number): Promise<Wallet> {
-    throw new NotImplementedException();
+    return this.prismaService.wallet.delete({
+      where: {
+        projectId,
+      },
+      include: {
+        messagingQuota: true,
+        subscription: true,
+      },
+    });
   }
 }

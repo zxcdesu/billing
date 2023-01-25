@@ -1,35 +1,53 @@
-import { Controller } from '@nestjs/common';
+import { Controller, ParseIntPipe, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { PlainToClassInterceptor } from 'src/shared/interceptors/plain-to-class.interceptor';
 import { CreateWalletDto } from './dto/create-wallet.dto';
+import { FindAllWalletsDto } from './dto/find-all-wallets.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
+import { Wallet } from './entities/wallet.entity';
 import { WalletService } from './wallet.service';
 
 @Controller()
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
-  @MessagePattern('wallet.create')
-  create(@Payload('payload') createWalletDto: CreateWalletDto) {
-    return this.walletService.create(NaN, createWalletDto);
+  @MessagePattern('createWallet')
+  @UseInterceptors(new PlainToClassInterceptor(Wallet))
+  create(
+    @Payload('projectId', ParseIntPipe) projectId: number,
+    @Payload() createWalletDto: CreateWalletDto,
+  ): Promise<Wallet> {
+    return this.walletService.create(projectId, createWalletDto);
   }
 
-  @MessagePattern('wallet.findAll')
-  findAll() {
-    return this.walletService.findAll();
+  @MessagePattern('findAllWallets')
+  @UseInterceptors(new PlainToClassInterceptor(Wallet))
+  findAll(@Payload() findAllWalletsDto: FindAllWalletsDto): Promise<Wallet[]> {
+    return this.walletService.findAll(findAllWalletsDto);
   }
 
-  @MessagePattern('wallet.findOne')
-  findOne() {
-    return this.walletService.findOne(NaN);
+  @MessagePattern('findOneWallet')
+  @UseInterceptors(new PlainToClassInterceptor(Wallet))
+  findOne(
+    @Payload('projectId', ParseIntPipe) projectId: number,
+  ): Promise<Wallet> {
+    return this.walletService.findOne(projectId);
   }
 
-  @MessagePattern('wallet.update')
-  update(@Payload('payload') updateWalletDto: UpdateWalletDto) {
-    return this.walletService.update(updateWalletDto);
+  @MessagePattern('updateWallet')
+  @UseInterceptors(new PlainToClassInterceptor(Wallet))
+  update(
+    @Payload('projectId', ParseIntPipe) projectId: number,
+    @Payload() updateWalletDto: UpdateWalletDto,
+  ): Promise<Wallet> {
+    return this.walletService.update(projectId, updateWalletDto);
   }
 
-  @MessagePattern('wallet.remove')
-  remove() {
-    return this.walletService.remove(NaN);
+  @MessagePattern('removeWallet')
+  @UseInterceptors(new PlainToClassInterceptor(Wallet))
+  remove(
+    @Payload('projectId', ParseIntPipe) projectId: number,
+  ): Promise<Wallet> {
+    return this.walletService.remove(projectId);
   }
 }
