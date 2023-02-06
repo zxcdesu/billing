@@ -72,31 +72,41 @@ export class YookassaProvider extends AbstractProvider {
   }
 
   async handle(body: any): Promise<void> {
-    if (!body.object && body.object.status !== 'succeeded') {
+    if (!body.object) {
       return;
     }
 
-    const invoice = await this.prismaService.payment.findUniqueOrThrow({
+    const payment = await this.prismaService.payment.findUniqueOrThrow({
       where: {
         id: body.object.id,
       },
     });
 
-    if (invoice.status === PaymentStatus.Pending) {
+    switch (body.event) {
+      case 'payment.succeeded':
+        return this.handleSucceeded(payment);
+
+      case 'payment.canceled':
+        return this.handleCanceled(payment);
+    }
+  }
+
+  private async handleSucceeded(payment: Payment): Promise<void> {
+    if (payment.status === PaymentStatus.Pending) {
       await this.prismaService.$transaction([
         this.prismaService.wallet.update({
           where: {
-            projectId: invoice.projectId,
+            projectId: payment.projectId,
           },
           data: {
             currentBalance: {
-              increment: invoice.amount,
+              increment: payment.amount,
             },
           },
         }),
         this.prismaService.payment.update({
           where: {
-            id: invoice.id,
+            id: payment.id,
           },
           data: {
             status: PaymentStatus.Succeeded,
@@ -104,6 +114,17 @@ export class YookassaProvider extends AbstractProvider {
         }),
       ]);
     }
+  }
+
+  private async handleCanceled(payment: Payment): Promise<void> {
+    await this.prismaService.payment.update({
+      where: {
+        id: payment.id,
+      },
+      data: {
+        status: PaymentStatus.Canceled,
+      },
+    });
   }
 
   private getAmount(amount: number, fee = 10): string {
