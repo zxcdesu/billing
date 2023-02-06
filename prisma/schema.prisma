@@ -14,10 +14,11 @@ model Wallet {
   projectId      Int              @id
   country        String
   currency       String           @default("USD")
-  currentBalance BigInt           @default(0)
+  currentBalance Decimal          @default(0) @db.Decimal(15, 6)
   messagingQuota MessagingQuota[]
   subscription   Subscription?
   transactions   Transaction[]
+  payments       Payment[]
 }
 
 enum TransactionType {
@@ -26,11 +27,11 @@ enum TransactionType {
 }
 
 model Transaction {
-  id        String          @id @default(uuid())
+  id        String          @id @default(uuid()) @db.Uuid
   projectId Int
   wallet    Wallet          @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
   type      TransactionType
-  bill      BigInt?
+  bill      Decimal         @db.Decimal(15, 6)
   billable  Boolean
   createdAt DateTime        @default(now())
 
@@ -57,4 +58,20 @@ model Subscription {
   projectId Int      @id
   wallet    Wallet   @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
   expiresAt DateTime
+}
+
+enum PaymentStatus {
+  Pending
+  Succeeded
+}
+
+model Payment {
+  id        String  @id
+  projectId Int
+  wallet    Wallet  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  status    PaymentStatus
+  amount    Decimal @db.Decimal(15, 6)
+
+  @@unique([projectId, id])
+  @@index([projectId])
 }

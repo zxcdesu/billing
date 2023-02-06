@@ -24,6 +24,7 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   const configService = app.get(ConfigService);
+
   app.connectMicroservice<MicroserviceOptions>(
     {
       transport: Transport.RMQ,
@@ -37,7 +38,7 @@ async function bootstrap() {
     },
   );
 
-  await app.init();
   await app.startAllMicroservices();
+  await app.listen(configService.get<number>('PORT'), '0.0.0.0');
 }
 bootstrap();

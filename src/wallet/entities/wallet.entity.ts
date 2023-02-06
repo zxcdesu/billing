@@ -1,5 +1,6 @@
 import Prisma from '@prisma/client';
-import { Exclude, Transform, Type } from 'class-transformer';
+import { Decimal } from '@prisma/client/runtime';
+import { Exclude, Type } from 'class-transformer';
 import { MessagingQuota } from './messaging-quota.entity';
 import { Subscription } from './subscription.entity';
 
@@ -11,10 +12,8 @@ export class Wallet implements Prisma.Wallet {
 
   currency: string;
 
-  @Transform(({ value }) => Number(value) / 10000, {
-    toPlainOnly: true,
-  })
-  currentBalance: bigint;
+  @Type(() => Number)
+  currentBalance: Decimal;
 
   @Type(() => MessagingQuota)
   messagingQuota: MessagingQuota[];
