@@ -67,11 +67,11 @@ enum PaymentStatus {
 }
 
 model Payment {
-  id        String  @id
+  id        String        @id
   projectId Int
-  wallet    Wallet  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  wallet    Wallet        @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
   status    PaymentStatus
-  amount    Decimal @db.Decimal(15, 6)
+  amount    Decimal       @db.Decimal(15, 6)
 
   @@unique([projectId, id])
   @@index([projectId])

@@ -3,10 +3,9 @@ import {
   Controller,
   ParseIntPipe,
   Post,
-  UseInterceptors,
+  SerializeOptions,
 } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { PlainToClassInterceptor } from 'src/shared/interceptors/plain-to-class.interceptor';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Payment } from './entities/payment.entity';
 import { PaymentService } from './payment.service';
@@ -15,8 +14,10 @@ import { PaymentService } from './payment.service';
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
+  @SerializeOptions({
+    type: Payment,
+  })
   @MessagePattern('createPayment')
-  @UseInterceptors(new PlainToClassInterceptor(Payment))
   async create(
     @Payload('projectId', ParseIntPipe) projectId: number,
     @Payload() createPaymentDto: CreatePaymentDto,
