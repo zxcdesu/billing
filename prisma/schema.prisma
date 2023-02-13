@@ -31,7 +31,7 @@ model Transaction {
   projectId Int
   wallet    Wallet          @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
   type      TransactionType
-  bill      Decimal         @db.Decimal(15, 6)
+  bill      Decimal         @default(0) @db.Decimal(15, 6)
   billable  Boolean
   createdAt DateTime        @default(now())
 

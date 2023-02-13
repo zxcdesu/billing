@@ -3,9 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import * as Joi from 'joi';
-// import { MessagingLimitModule } from './messaging-limit/messaging-limit.module';
+import { MessagingLimitModule } from './messaging-limit/messaging-limit.module';
 import { PaymentModule } from './payment/payment.module';
-// import { PricingModule } from './pricing/pricing.module';
+import { PricingModule } from './pricing/pricing.module';
 import { PrismaService } from './prisma.service';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { TransactionModule } from './transaction/transaction.module';
@@ -25,9 +25,9 @@ import { WalletModule } from './wallet/wallet.module';
       }),
     }),
     ScheduleModule.forRoot(),
-    // MessagingLimitModule,
+    MessagingLimitModule,
     PaymentModule,
-    // PricingModule,
+    PricingModule,
     SubscriptionModule,
     TransactionModule,
     WalletModule,
